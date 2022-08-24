@@ -3,6 +3,8 @@ use crate::Terminal;
 use termion::event::Key;
 
 
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 pub struct Editor {
     should_quit: bool,
     terminal: Terminal,
@@ -27,13 +29,15 @@ impl Editor {
     }
 
     fn refresh_screen(&self) -> Result<(), std::io::Error> {
-        Terminal::clear_screen();
+        Terminal::cursor_hide();
         Terminal::cursor_position(0,0);
         if self.should_quit {
+            Terminal::clear_screen();
             print!("Goodbye.\r");
         } else {
             Terminal::cursor_position(0,0);
         }
+        Terminal::cursor_show();
         Terminal::flush()
     }
 
@@ -47,8 +51,16 @@ impl Editor {
     }
 
     fn draw_rows(&self) {
-        for _ in 0..24 {
-            println!("~\r");
+        let height = self.terminal.size().height;
+        for row in 0..height - 1{
+            Terminal::clear_current_line();
+            if row == height/3 {
+                let welcome = format!("Hecto editor -- version {}", VERSION);
+                let width = std::cmp::min(self.terminal.size().width as usize, welcome.len());
+                println!("{}\r", &welcome[..width]);
+            } else {
+                println!("~\r");
+            }
         }
     }
     pub fn default() -> Self {
