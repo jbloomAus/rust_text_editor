@@ -66,15 +66,15 @@ impl Editor {
         Terminal::cursor_position(&Position::default());
         if self.should_quit {
             Terminal::clear_screen();
-            print!("Goodbye.\r");
+            println!("Goodbye.\r");
         } else {
             self.draw_rows();
             self.draw_status_bar();
             self.draw_message_bar();
             Terminal::cursor_position(&Position {
-                 x: self.cursor_position.x.saturating_sub(self.offset.x), 
-                 y: self.cursor_position.y.saturating_sub(self.offset.y) 
-                });
+                x: self.cursor_position.x.saturating_sub(self.offset.x),
+                y: self.cursor_position.y.saturating_sub(self.offset.y),
+            });
         }
         Terminal::cursor_show();
         Terminal::flush()
