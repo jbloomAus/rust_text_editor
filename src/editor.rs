@@ -84,7 +84,7 @@ impl Editor {
         let pressed_key = Terminal::read_key()?;
         match pressed_key {
             Key::Ctrl('c') => self.should_quit = true,
-            | Key::Up
+            Key::Up
             | Key::Down
             | Key::Left
             | Key::Right
