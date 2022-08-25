@@ -2,9 +2,11 @@ use crate::Document;
 use crate::Terminal;
 use crate::Row;
 use std::env;
+use termion::color;
 use termion::event::Key;
 
-
+const STATUS_FG_COLOR: color::Rgb = color::Rgb(63, 63, 63);
+const STATUS_BG_COLOR: color::Rgb = color::Rgb(239, 239, 239);
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 
@@ -67,6 +69,9 @@ impl Editor {
             Terminal::clear_screen();
             print!("Goodbye.\r");
         } else {
+            self.draw_rows();
+            self.draw_status_bar();
+            self.draw_message_bar();
             Terminal::cursor_position(&Position {
                  x: self.cursor_position.x.saturating_sub(self.offset.x), 
                  y: self.cursor_position.y.saturating_sub(self.offset.y) 
@@ -205,6 +210,41 @@ impl Editor {
                 println!("~\r");
             }
         }
+    }
+
+    fn draw_status_bar(&self) {
+        let mut status: _;
+        let width = self.terminal.size().width as usize;
+        let mut file_name = "[No Name]".to_string();
+        if let Some(name) = &self.document.file_name {
+            file_name = name.clone();
+            file_name.truncate(20);
+        }
+        status = format!("{} - {} lines", file_name, self.document.len());
+        
+        let line_indicator = format!(
+            "x:{}/{}:y:{}/{}",
+            self.cursor_position.x.saturating_add(1),
+            width,
+            self.cursor_position.y.saturating_add(1),
+            self.document.len()
+        );
+        let len = status.len() + line_indicator.len();
+        if width > len {
+            status.push_str(&" ".repeat(width - status.len()));
+        }
+        status = format!("{}{}", status, line_indicator);
+        // status.truncate(width);
+        
+        
+        Terminal::set_bg_color(STATUS_BG_COLOR);
+        println!("{}\r", status);
+        Terminal::reset_bg_color();
+        Terminal::reset_fg_color()
+    }
+
+    fn draw_message_bar(&self){
+        Terminal::clear_current_line();
     }
 }
 
