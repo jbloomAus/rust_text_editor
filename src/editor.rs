@@ -115,10 +115,9 @@ impl Editor {
         }
     }
 
-    fn move_cursor(&mut self, key: Key){
+    fn move_cursor(&mut self, key: Key) {
         let terminal_height = self.terminal.size().height as usize;
-        let Position {mut x, mut y } = self.cursor_position;
-        let size = self.terminal.size();
+        let Position { mut y, mut x } = self.cursor_position;
         let height = self.document.len();
         let mut width = if let Some(row) = self.document.row(y) {
             row.len()
@@ -136,7 +135,7 @@ impl Editor {
                     x -= 1;
                 } else if y > 0 {
                     y -= 1;
-                    if let Some(row) = self.document.row(y) { 
+                    if let Some(row) = self.document.row(y) {
                         x = row.len();
                     } else {
                         x = 0;
@@ -157,12 +156,14 @@ impl Editor {
                     height
                 }},
             Key::PageDown => {
-                y = if y < height.saturating_add(terminal_height) {
-                    y + terminal_height
+                y = if y.saturating_add(terminal_height) < height {
+                    y + terminal_height as usize
                 } else {
                     height
                 }
-            },
+            }
+            Key::Home => x = 0,
+            Key::End => x = width,
             _ => (),
         }
         width = if let Some(row) = self.document.row(y) {
@@ -173,7 +174,8 @@ impl Editor {
         if x > width {
             x = width;
         }
-        self.cursor_position = Position { x, y };
+
+        self.cursor_position = Position { x, y }
     }
 
     fn draw_welcome_message(&self) {            
