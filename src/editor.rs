@@ -45,17 +45,18 @@ impl Editor {
     pub fn default() -> Self {
         let args: Vec<String> = env::args().collect();
         let document = if args.len() > 1 {
-            Document::open(&args[1]).unwrap()
+            let file_name = &args[1];
+            Document::open(&file_name).unwrap_or_default()
         } else {
             Document::default()
         };
 
         Self {
             should_quit: false,
-            terminal: Terminal::default().expect("Failed to Initialize terminal"),
+            terminal: Terminal::default().expect("Failed to initialize terminal"),
             document,
             cursor_position: Position::default(),
-            offset: Position::default()
+            offset: Position::default(),
         }
     }
 
