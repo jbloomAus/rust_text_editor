@@ -212,7 +212,7 @@ impl Editor {
     }
 
     fn draw_status_bar(&self) {
-        let mut status: _;
+        let mut status;
         let width = self.terminal.size().width as usize;
         let mut file_name = "[No Name]".to_string();
         if let Some(name) = &self.document.file_name {
@@ -220,28 +220,25 @@ impl Editor {
             file_name.truncate(20);
         }
         status = format!("{} - {} lines", file_name, self.document.len());
-        
+
         let line_indicator = format!(
             "{}/{}",
             self.cursor_position.y.saturating_add(1),
             self.document.len()
         );
-
         let len = status.len() + line_indicator.len();
         if width > len {
-            status.push_str(&" ".repeat(width - status.len()));
+            status.push_str(&" ".repeat(width - len));
         }
         status = format!("{}{}", status, line_indicator);
         status.truncate(width);
-        
-        
         Terminal::set_bg_color(STATUS_BG_COLOR);
+        Terminal::set_fg_color(STATUS_FG_COLOR);
         println!("{}\r", status);
+        Terminal::reset_fg_color();
         Terminal::reset_bg_color();
-        Terminal::reset_fg_color()
     }
-
-    fn draw_message_bar(&self){
+    fn draw_message_bar(&self) {
         Terminal::clear_current_line();
     }
 }
