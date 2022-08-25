@@ -4,6 +4,7 @@ I'm continuing to learn rust. This time by building a basic text editor based on
 
 ## Current progress:
 
-I'm currently up to chapter 4. 
+I'm currently part of the way through chapter 4. 
 
-I'm not sure the cursor positioning is working as intended (appears only to go left/right and not up/down). I'm inferring this from tilda movement too, not from the apparent cursor location. These differences/issues might be more obvious as time goes so instead of fixing immediately, I'll start the next chapter and see if the reason elucidates itself. 
+We've implemented scrolling which demonstrated that what I thought might have been a bug was not. The cursor's position isn't obvious but it is repsonding to up and down keys.
+
