@@ -63,7 +63,14 @@ impl Editor {
         let pressed_key = Terminal::read_key();
         match pressed_key {
             Ok(Key::Ctrl('c')) => self.should_quit = true,
-            Ok(Key::Up) | Ok(Key::Down) | Ok(Key::Left) | Ok(Key::Right) => {
+            Ok(Key::Up) 
+            | Ok(Key::Down) 
+            | Ok(Key::Left) 
+            | Ok(Key::Right)
+            | Ok(Key::PageUp)
+            | Ok(Key::PageDown)
+            | Ok(Key::End)
+            | Ok(Key::Home) => {
                 self.move_cursor(pressed_key.unwrap());
             },
             _ => (),
