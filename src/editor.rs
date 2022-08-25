@@ -189,7 +189,7 @@ impl Editor {
             println!("{}\r", welcome_message);            
         }
 
-    fn draw_row(&self, row: &Row) {
+    pub fn draw_row(&self, row: &Row) {
         let width = self.terminal.size().width as usize;
         let start = self.offset.x;
         let end = self.offset.x + width;
