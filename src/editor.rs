@@ -9,7 +9,6 @@ const STATUS_FG_COLOR: color::Rgb = color::Rgb(63, 63, 63);
 const STATUS_BG_COLOR: color::Rgb = color::Rgb(239, 239, 239);
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-
 #[derive(Default)]
 pub struct Position {
     pub x: usize,
@@ -24,9 +23,24 @@ pub struct Editor {
     offset: Position,
 }
 
-
-
 impl Editor {
+
+    pub fn run(&mut self) {
+        loop {
+            if let Err(error) = self.refresh_screen() {
+                die(error);
+            }
+            if self.should_quit {
+                break;
+            } else {
+                self.draw_rows();
+                print!("{}", termion::cursor::Goto(1, 1))
+            }
+            if let Err(error) = self.process_keypress() {
+                die(error);
+            }
+        }
+    }
 
     pub fn default() -> Self {
         let args: Vec<String> = env::args().collect();
@@ -45,22 +59,6 @@ impl Editor {
         }
     }
 
-    pub fn run(&mut self) {
-        loop {
-            if let Err(error) = self.refresh_screen() {
-                die(error);
-            }
-            if self.should_quit {
-                break;
-            } else {
-                self.draw_rows();
-                print!("{}", termion::cursor::Goto(1, 1))
-            }
-            if let Err(error) = self.process_keypress() {
-                die(error);
-            }
-        }
-    }
 
     fn refresh_screen(&self) -> Result<(), std::io::Error> {
         Terminal::cursor_hide();
@@ -82,19 +80,17 @@ impl Editor {
     }
 
     fn process_keypress(&mut self) -> Result<(), std::io::Error> {
-        let pressed_key = Terminal::read_key();
+        let pressed_key = Terminal::read_key()?;
         match pressed_key {
-            Ok(Key::Ctrl('c')) => self.should_quit = true,
-            Ok(Key::Up) 
-            | Ok(Key::Down) 
-            | Ok(Key::Left) 
-            | Ok(Key::Right)
-            | Ok(Key::PageUp)
-            | Ok(Key::PageDown)
-            | Ok(Key::End)
-            | Ok(Key::Home) => {
-                self.move_cursor(pressed_key.unwrap());
-            },
+            Key::Ctrl('c') => self.should_quit = true,
+            | Key::Up
+            | Key::Down
+            | Key::Left
+            | Key::Right
+            | Key::PageUp
+            | Key::PageDown
+            | Key::End
+            | Key::Home => self.move_cursor(pressed_key),
             _ => (),
         }
         self.scroll();
@@ -160,7 +156,7 @@ impl Editor {
                     height
                 }},
             Key::PageDown => {
-                y = if y < height.saturating_sub(terminal_height) {
+                y = if y < height.saturating_add(terminal_height) {
                     y + terminal_height
                 } else {
                     height
@@ -191,9 +187,9 @@ impl Editor {
         }
 
     fn draw_row(&self, row: &Row) {
-        let start = self.offset.x;
         let width = self.terminal.size().width as usize;
-        let end = start + width;
+        let start = self.offset.x;
+        let end = self.offset.x + width;
         let row = row.render(start, end);
         println!("{}\r", row);
     }
@@ -223,18 +219,17 @@ impl Editor {
         status = format!("{} - {} lines", file_name, self.document.len());
         
         let line_indicator = format!(
-            "x:{}/{}:y:{}/{}",
-            self.cursor_position.x.saturating_add(1),
-            width,
+            "{}/{}",
             self.cursor_position.y.saturating_add(1),
             self.document.len()
         );
+
         let len = status.len() + line_indicator.len();
         if width > len {
             status.push_str(&" ".repeat(width - status.len()));
         }
         status = format!("{}{}", status, line_indicator);
-        // status.truncate(width);
+        status.truncate(width);
         
         
         Terminal::set_bg_color(STATUS_BG_COLOR);

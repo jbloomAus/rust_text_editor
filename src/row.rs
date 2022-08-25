@@ -17,7 +17,6 @@ impl From<&str> for Row {
     }
 }
 
-
 impl Row {
     pub fn render(&self, start: usize, end: usize) -> String {
         let end = cmp::min(end, self.string.len());
@@ -26,14 +25,14 @@ impl Row {
         for grapheme in self.string[..]
             .graphemes(true)
             .skip(start)
-            .take(end-start)
-            {
-                if grapheme == "\t" {
-                    result.push_str(" ");
-                } else {
-                    result.push_str(grapheme);
-                }
+            .take(end - start)
+        {
+            if grapheme == "\t" {
+                result.push_str(" ");
+            } else {
+                result.push_str(grapheme);
             }
+        }
         result
     }
     pub fn len(&self) -> usize {
