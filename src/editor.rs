@@ -111,6 +111,9 @@ impl Editor {
                 self.document.insert( &self.cursor_position, c);
                 self.move_cursor(Key::Right);
             }
+            Key::Delete => {
+                self.document.delete(&self.cursor_position);
+            }
             Key::Up
             | Key::Down
             | Key::Left
