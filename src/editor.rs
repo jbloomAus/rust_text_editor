@@ -1,6 +1,6 @@
 use crate::Document;
-use crate::Terminal;
 use crate::Row;
+use crate::Terminal;
 use std::env;
 use std::time::Duration;
 use std::time::Instant;
@@ -32,7 +32,6 @@ impl StatusMessage {
     }
 }
 
-
 pub struct Editor {
     should_quit: bool,
     terminal: Terminal,
@@ -44,7 +43,6 @@ pub struct Editor {
 }
 
 impl Editor {
-
     pub fn run(&mut self) {
         loop {
             if let Err(error) = self.refresh_screen() {
@@ -66,7 +64,7 @@ impl Editor {
             let file_name = &args[1];
             //Document::open(&file_name)
             let doc = Document::open(&file_name);
-            if doc.is_ok(){
+            if doc.is_ok() {
                 doc.unwrap()
             } else {
                 initial_status = format!("ERR: Could not open file: {}", file_name);
@@ -85,7 +83,6 @@ impl Editor {
             quit_times: QUIT_TIMES,
         }
     }
-
 
     fn refresh_screen(&self) -> Result<(), std::io::Error> {
         Terminal::cursor_hide();
@@ -138,7 +135,7 @@ impl Editor {
             }
             Key::Ctrl('s') => self.save(),
             Key::Char(c) => {
-                self.document.insert( &self.cursor_position, c);
+                self.document.insert(&self.cursor_position, c);
                 self.move_cursor(Key::Right);
             }
             Key::Delete => {
@@ -199,7 +196,8 @@ impl Editor {
             Key::Down => {
                 if y < height {
                     y = y.saturating_add(1);
-                }}
+                }
+            }
             Key::Left => {
                 if x > 0 {
                     x -= 1;
@@ -218,13 +216,15 @@ impl Editor {
                 } else if y < height {
                     y += 1;
                     x = 0;
-                }},
+                }
+            }
             Key::PageUp => {
                 y = if y > terminal_height {
                     y - terminal_height
                 } else {
                     height
-                }},
+                }
+            }
             Key::PageDown => {
                 y = if y.saturating_add(terminal_height) < height {
                     y + terminal_height as usize
@@ -248,16 +248,16 @@ impl Editor {
         self.cursor_position = Position { x, y }
     }
 
-    fn draw_welcome_message(&self) {            
-            let mut welcome_message = format!("Hecto editor -- version {}", VERSION);            
-            let width = self.terminal.size().width as usize;            
-            let len = welcome_message.len();            
-            let padding = width.saturating_sub(len) / 2;            
-            let spaces = " ".repeat(padding.saturating_sub(1));            
-            welcome_message = format!("~{}{}", spaces, welcome_message);            
-            welcome_message.truncate(width);            
-            println!("{}\r", welcome_message);            
-        }
+    fn draw_welcome_message(&self) {
+        let mut welcome_message = format!("Hecto editor -- version {}", VERSION);
+        let width = self.terminal.size().width as usize;
+        let len = welcome_message.len();
+        let padding = width.saturating_sub(len) / 2;
+        let spaces = " ".repeat(padding.saturating_sub(1));
+        welcome_message = format!("~{}{}", spaces, welcome_message);
+        welcome_message.truncate(width);
+        println!("{}\r", welcome_message);
+    }
 
     pub fn draw_row(&self, row: &Row) {
         let width = self.terminal.size().width as usize;
@@ -269,11 +269,11 @@ impl Editor {
 
     fn draw_rows(&self) {
         let height = self.terminal.size().height;
-        for terminal_row in 0..height{
+        for terminal_row in 0..height {
             Terminal::clear_current_line();
             if let Some(row) = self.document.row(terminal_row as usize + self.offset.y) {
                 self.draw_row(row);
-            } else if self.document.is_empty() && terminal_row == height/3 {
+            } else if self.document.is_empty() && terminal_row == height / 3 {
                 self.draw_welcome_message();
             } else {
                 println!("~\r");
@@ -347,14 +347,14 @@ impl Editor {
         self.status_message = StatusMessage::from(String::new());
         if result.is_empty() {
             return Ok(None);
-        } 
+        }
         Ok(Some(result))
     }
 
     fn draw_message_bar(&self) {
         Terminal::clear_current_line();
         let message = &self.status_message;
-        if Instant::now() - message.time < Duration::new(5,0) {
+        if Instant::now() - message.time < Duration::new(5, 0) {
             let mut text = message.text.clone();
             text.truncate(self.terminal.size().width as usize);
             print!("{}", text);
@@ -362,11 +362,8 @@ impl Editor {
     }
 }
 
-
 // This function takes an error and panics, ending the program
 fn die(e: std::io::Error) {
     print!("{}", termion::clear::All);
     panic!("{}", e);
 }
-
-
